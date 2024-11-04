@@ -20,7 +20,7 @@ app.listen(PORT, () => {
 })
 
 app.get('/ESP', (request, response) => {
-    response.send(color)
+    response.send({R:color[0], G:color[1], B:color[2]})
 })
 
 
