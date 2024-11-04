@@ -8,7 +8,7 @@ app.use(express.json())
 let color = []
 app.get('/', (request, response) => {
     response.send('<div>' +
-        '<p>Hello World!</p>' +
+        '<h1>Hell World!</h1>' +
         `<p>Red: ${color[0]}</p>` +
         `<p>Green: ${color[1]}</p>` +
         `<p>Blue: ${color[2]}</p>` +
@@ -19,11 +19,10 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 
-app.post('/bruh', (request, response) => {
-    const note = request.body
-    console.log(note)
-    response.json(note)
+app.get('/ESP', (request, response) => {
+    response.send(color)
 })
+
 
 app.post('/RGB', (request, response) => {
     color = request.body
