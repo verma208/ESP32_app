@@ -1,28 +1,72 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-app.use(cors())
+const {WebSocketServer, WebSocket} = require("ws");
+const PORT = process.env.PORT || 4000
 
+let messages = 0
+app.use(cors())
 app.use(express.json())
 
 
-const PORT = process.env.PORT || 3002
-app.listen(PORT, () => {
+function onSocketPreError(Error) {
+    console.log(Error)
+}
+
+function onSocketPostError(Error) {
+    console.log(Error)
+}
+
+
+
+const s = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 
-let color = 0
+const wss = new WebSocketServer({ noServer: true });
+
+
+s.on('upgrade', (req, socket, head) => {
+    socket.on('error', onSocketPreError);
+
+    // perform auth
+    if (!!req.headers['BadAuth']) {
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+        return;
+    }
+
+    wss.handleUpgrade(req, socket, head, (ws) => {
+        socket.removeListener('error', onSocketPreError);
+        wss.emit('connection', ws, req);
+    });
+});
+
+
+wss.on('connection', (ws, req) => {
+    ws.on('error', onSocketPostError);
+
+    ws.on('message', (msg) => {
+
+        messages = Number(msg)
+
+        console.log(messages)
+    });
+
+    ws.on('close', () => {
+        console.log('Connection closed');
+    });
+});
+
+
 app.get('/', (request, response) => {
     response.send('<div>' +
-        '<h1>Hell World!</h1>' +
-        `<p>${color}</p>` +
+        '<h1>Hello World!</h1>' +
+        `<p>${messages}</p>` +
         '</div>')
 })
 
 
-app.get('/ESP', (request, response) => {
-    response.send({R:color[0], G:color[1], B:color[2]})
-})
 
 
 app.post('/ECG', (request, response) => {
@@ -31,7 +75,3 @@ app.post('/ECG', (request, response) => {
     response.json(color)
 })
 
-app.get('/notes', (request, response) => {
-
-    response.json({"bruh":"maachuida"})
-})
