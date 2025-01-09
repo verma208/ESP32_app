@@ -4,7 +4,7 @@ const cors = require('cors')
 const {WebSocketServer, WebSocket} = require("ws");
 const PORT = process.env.PORT || 4000
 
-let messages = 0
+let messages = "default"
 app.use(cors())
 app.use(express.json())
 
@@ -48,7 +48,7 @@ wss.on('connection', (ws, req) => {
 
     ws.on('message', (msg) => {
 
-        messages = Number(msg)
+        messages = msg
 
         console.log(messages)
     });
